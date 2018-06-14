@@ -141,32 +141,28 @@ public class PLSATraing {
 			}
 			// em();
 			fastEM();
+			System.out.println("似然函数值为："+computeLogLikelihood());
 		}
 	}
 
-	private double computeLogLikelihood(Documents docSet) {
-		// TODO Auto-generated method stub
-		/*
-		 * Compute the log likelihood of generation the corpus
-		 * 
-		 * L = sum_i {n(d_i) * [sum_j( n(d_i, w_j) / n(d_i) * log sum_k
-		 * p(z_k|d_i)*p(w_j|z_k))]}
-		 * 
-		 */
+	/**
+	 * 计算似然函数，注意这里把似然函数中的常量项去除了
+	 * 
+	 * @param docSet
+	 * @return
+	 */
+	private double computeLogLikelihood() {
 		double L = 0.0;
-		for (int i = 0; i < N; i++) {
-			double docISize = docSet.getDocs().get(i).getDocWords().length;
-			double sumM = 0.0;
-			for (int j = 0; j < M; j++) {
+		for (int docIndex = 0; docIndex < N; docIndex++) {
+			int docLength = docTermTopicPros[docIndex].length;
+			for (int wordIndex = 0; wordIndex < docLength; wordIndex++) {
 				double sumK = 0.0;
-				for (int k = 0; k < topicNum; k++) {
-					sumK += docTopicPros[i][k] * topicTermPros[k][j];
+				int realWordIndex = docTermMatrix[docIndex][wordIndex << 1];
+				for (int topicIndex = 0; topicIndex < topicNum; topicIndex++) {
+					sumK += docTopicPros[docIndex][topicIndex] * topicTermPros[topicIndex][realWordIndex];
 				}
-				// System.out.println("sumK: " + sumK);
-				sumM += (double) docTermMatrix[i][j] / docISize * Math.log10(sumK);
+				L += (double) docTermMatrix[docIndex][(wordIndex<<1) + 1] * Math.log10(sumK);
 			}
-			// System.out.println("sumM: " + sumM);
-			L += docISize * sumM;
 		}
 		return L;
 	}
@@ -330,41 +326,28 @@ public class PLSATraing {
 		/*
 		 * 更新 p(w|z) p(w|z)=sum(n(d',w)*p(z|d',w))/sum(sum(n(d',w')*p(z|d',w'))
 		 */
-		float[][] tmpDocWord = null;
 		float[] tmpWord = null;
 		for (int topicIndex = 0; topicIndex < topicNum; topicIndex++) {
 			float totalDenominator = 0f;
-			tmpDocWord = new float[N][M];
+			tmpWord = new float[M];
 			for (int docIndex = 0; docIndex < N; docIndex++) {
 				// 这个doc的词的个数
 				int wordLength = docTermTopicPros[docIndex].length;
 				for (int wordIndex = 0; wordIndex < wordLength; wordIndex++) {
-					tmpDocWord[docIndex][docTermMatrix[docIndex][wordIndex * 2]] = docTermMatrix[docIndex][wordIndex * 2
-							+ 1] * docTermTopicPros[docIndex][wordIndex][topicIndex];
+					tmpWord[docTermMatrix[docIndex][wordIndex << 1]] += docTermMatrix[docIndex][(wordIndex << 1) + 1]
+							* docTermTopicPros[docIndex][wordIndex][topicIndex];
 				}
 			}
 
-			tmpWord = new float[M];
-			for (int docIndex = 0; docIndex < N; docIndex++) {
-				for (int wordIndex = 0; wordIndex < M; wordIndex++) {
-					tmpWord[wordIndex] += tmpDocWord[docIndex][wordIndex];
-				}
-			}
+			// for (int docIndex = 0; docIndex < N; docIndex++) {
+			// for (int wordIndex = 0; wordIndex < M; wordIndex++) {
+			// tmpWord[wordIndex] += tmpDocWord[docIndex][wordIndex];
+			// }
+			// }
 			for (int wordIndex = 0; wordIndex < M; wordIndex++) {
 				topicTermPros[topicIndex][wordIndex] = tmpWord[wordIndex];
 				totalDenominator += tmpWord[wordIndex];
 			}
-
-			// for (int wordIndex = 0; wordIndex < M; wordIndex++) {
-			// float numerator = 0f;
-			// for (int docIndex = 0; docIndex < N; docIndex++) {
-			// numerator += tmpDocWord[docIndex][wordIndex];
-			// }
-			//
-			// topicTermPros[topicIndex][wordIndex] = numerator;
-			//
-			// totalDenominator += numerator;
-			// }
 
 			if (totalDenominator == 0.0) {
 				totalDenominator = avoidZero(totalDenominator);

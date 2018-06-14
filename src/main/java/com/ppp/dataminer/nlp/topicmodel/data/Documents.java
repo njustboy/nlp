@@ -73,7 +73,7 @@ public class Documents {
 				// 文档中的每一行作为一个doc
 				List<String> lines = new ArrayList<String>();
 				FileUtil.readLines(file, lines);
-				int maxCount = lines.size() > 50 ? 50 : lines.size();
+				int maxCount = lines.size() > 1000 ? 1000 : lines.size();
 				for (int i = 0; i < maxCount; i++) {
 					Document doc = new Document(lines.get(i), termToIndexMap, indexToTermMap, termCountMap);
 					docs.add(doc);
@@ -129,9 +129,9 @@ public class Documents {
 						if (term.getName().length() < 2) {
 							continue;
 						}
-						if (term.getName().contains("公司")) {
-							continue;
-						}
+//						if (term.getName().contains("公司")||term.getName().contains("工作")||term.getName().contains("负责")) {
+//							continue;
+//						}
 						words.add(term.getName());
 					}
 				}
@@ -176,9 +176,6 @@ public class Documents {
 			for (int i = 0; i < parse.size(); i++) {
 				String word = parse.get(i).getName();
 				if (word.length() < 2) {
-					continue;
-				}
-				if (word.contains("公司")) {
 					continue;
 				}
 				contentWords.add(word);
