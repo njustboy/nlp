@@ -223,23 +223,23 @@ public class Documents {
 		}
 
 		// init stop nature
-		// File stopNaturesFile = new File("library/stopnature.dic");
-		// String stopNature = null;
-		// try {
-		// fr = new FileReader(stopNaturesFile);
-		// br = new BufferedReader(fr);
-		// stopNature = br.readLine();
-		// while (stopNature != null) {
-		// FilterModifWord.insertStopNatures(stopNature);
-		// stopNature = br.readLine();
-		// }
-		// br.close();
-		// fr.close();
-		// } catch (Exception e) {
-		// e.printStackTrace();
-		// return false;
-		// } finally {
-		// }
+		File stopNaturesFile = new File("library/stopnature.dic");
+		String stopNature = null;
+		try {
+			fr = new FileReader(stopNaturesFile);
+			br = new BufferedReader(fr);
+			stopNature = br.readLine();
+			while (stopNature != null) {
+				FilterModifWord.insertStopNatures(stopNature);
+				stopNature = br.readLine();
+			}
+			br.close();
+			fr.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+		}
 		return true;
 	}
 

@@ -20,48 +20,48 @@ import com.ppp.dataminer.nlp.doc2vec.data.Neuron;
 import com.ppp.dataminer.nlp.doc2vec.data.WordNeuron;
 
 /**
- * ÎÄ±¾ÏòÁ¿ºÍ´ÊÏòÁ¿ÑµÁ·Æ÷»ùÀà£¬ÊµÏÖhaffmanÊ÷µÄ±£´æ¼°¶ÁÈ¡²Ù×÷£¬ÒÔÖ§³ÖÄ£ĞÍµÄÔöÁ¿ÑµÁ·
+ * æ–‡æœ¬å‘é‡å’Œè¯å‘é‡è®­ç»ƒå™¨åŸºç±»ï¼Œå®ç°haffmanæ ‘çš„ä¿å­˜åŠè¯»å–æ“ä½œï¼Œä»¥æ”¯æŒæ¨¡å‹çš„å¢é‡è®­ç»ƒ
  * 
- * ÑµÁ·Æ÷Ê¹ÓÃ²ã´Îsoftmax·½·¨
+ * è®­ç»ƒå™¨ä½¿ç”¨å±‚æ¬¡softmaxæ–¹æ³•
  * 
  * @author zhangwei
  *
  */
 public class TrainVec {
-    // ´ÊÏòÁ¿ĞÅÏ¢
+    // è¯å‘é‡ä¿¡æ¯
     protected Map<String, Neuron> wordMap = new HashMap<>();
 
-    // ´ÊÏòÁ¿´óĞ¡
+    // è¯å‘é‡å¤§å°
     protected int layerSize = 100;
 
-    // ÉÏÏÂÎÄ´°¿Ú´óĞ¡
+    // ä¸Šä¸‹æ–‡çª—å£å¤§å°
     protected int window = 5;
 
     protected double sample = 1e-3;
-    // µü´úËÙÂÊ
+    // è¿­ä»£é€Ÿç‡
     protected double alpha = 0.025;
     protected double startingAlpha = alpha;
-    // sigmodº¯Êı¾²Ì¬±í´óĞ¡
+    // sigmodå‡½æ•°é™æ€è¡¨å¤§å°
     protected final int EXP_TABLE_SIZE = 1000;
 
     protected boolean isCbow = true;
-    // sigmodº¯Êı¾²Ì¬±í
+    // sigmodå‡½æ•°é™æ€è¡¨
     protected double[] expTable = new double[EXP_TABLE_SIZE];
-    // ÑµÁ·µÄ×Ü´ÊÊı
+    // è®­ç»ƒçš„æ€»è¯æ•°
     protected int trainWordsCount = 0;
-    // ÒÑÑµÁ·µÄ´Ê»ãÊı
+    // å·²è®­ç»ƒçš„è¯æ±‡æ•°
     protected double wordCountActual = 0;
-    // Ê¹ÓÃsigmodº¯ÊıÊ±×î´óµÄ×Ô±äÁ¿£¬µ±×Ô±äÁ¿³¬¹ı´Ë·¶Î§ºósigmodº¯ÊıÖµÇ÷ÓÚ0
+    // ä½¿ç”¨sigmodå‡½æ•°æ—¶æœ€å¤§çš„è‡ªå˜é‡ï¼Œå½“è‡ªå˜é‡è¶…è¿‡æ­¤èŒƒå›´åsigmodå‡½æ•°å€¼è¶‹äº0
     protected int MAX_EXP = 6;
-    // ´ÊÆµãĞÖµ
+    // è¯é¢‘é˜ˆå€¼
     protected int freqThresold = 5;
-    // ÑµÁ·µü´ú´ÎÊı
+    // è®­ç»ƒè¿­ä»£æ¬¡æ•°
     protected int iteratorNum = 20;
 
     protected Haffman haffman = null;
 
     /**
-     * ´ÓÄ£ĞÍÎÄ¼ş¼ÓÔØÄ£ĞÍ
+     * ä»æ¨¡å‹æ–‡ä»¶åŠ è½½æ¨¡å‹
      * 
      * @param modelFile
      */
@@ -71,7 +71,7 @@ public class TrainVec {
     }
 
     /**
-     * ´ÓÄÚ´æ¼ÓÔØÄ£ĞÍ
+     * ä»å†…å­˜åŠ è½½æ¨¡å‹
      * 
      * @param wordMap
      */
@@ -85,7 +85,7 @@ public class TrainVec {
     }
 
     /**
-     * ´ÓÄ£ĞÍÎÄ¼ş¼ÓÔØhaffmanÊ÷
+     * ä»æ¨¡å‹æ–‡ä»¶åŠ è½½haffmanæ ‘
      * 
      * @param modelFile
      * @throws Exception
@@ -95,22 +95,22 @@ public class TrainVec {
         DataInputStream dis = null;
         try {
             dis = new DataInputStream(new BufferedInputStream(new FileInputStream(modelFile)));
-            // ´ÊÏòÁ¿ÊıÁ¿
+            // è¯å‘é‡æ•°é‡
             dis.readInt();
-            // ÑµÁ·×Ü´ÊÊı
+            // è®­ç»ƒæ€»è¯æ•°
             trainWordsCount = dis.readInt();
-            // ´ÊÏòÁ¿³¤¶È
+            // è¯å‘é‡é•¿åº¦
             layerSize = dis.readInt();
 
-            // µ±Ç°²ã½ÚµãÊı
+            // å½“å‰å±‚èŠ‚ç‚¹æ•°
             int nodeSize = dis.readInt();
-            // Ñ­»·¶ÁÈ¡Ã¿²ã½ÚµãÊı¾İ
+            // å¾ªç¯è¯»å–æ¯å±‚èŠ‚ç‚¹æ•°æ®
             while (nodeSize > 0) {
                 for (int i = 0; i < nodeSize; i++) {
                     String nodeName = dis.readUTF();
-                    // ×Ô¶¨ÒåÖ¦¸É½ÚµãÒÔ¡°node_¡±¿ªÍ·
+                    // è‡ªå®šä¹‰æå¹²èŠ‚ç‚¹ä»¥â€œnode_â€å¼€å¤´
                     if (nodeName.startsWith("node_")) {
-                        // Òş²ã½Úµã
+                        // éšå±‚èŠ‚ç‚¹
                         HiddenNeuron hiddenNeuron = new HiddenNeuron();
                         hiddenNeuron.setName(nodeName);
                         hiddenNeuron.setParentName(dis.readUTF());
@@ -121,12 +121,12 @@ public class TrainVec {
                             syn1[j] = dis.readFloat();
                         }
                         hiddenNeuron.setSyn1(syn1);
-                        // ¶ÁÈ¡·ÖÁÑ½Úµã¸öÊı£¨´Ë´¦Ê¼ÖÕÎª0£©
+                        // è¯»å–åˆ†è£‚èŠ‚ç‚¹ä¸ªæ•°ï¼ˆæ­¤å¤„å§‹ç»ˆä¸º0ï¼‰
                         dis.readInt();
 
                         hiddenNeurons.put(nodeName, hiddenNeuron);
                     } else {
-                        // ´ÊÏòÁ¿½Úµã
+                        // è¯å‘é‡èŠ‚ç‚¹
                         WordNeuron wordNeuron = new WordNeuron();
                         wordNeuron.setName(nodeName);
                         wordNeuron.setParentName(dis.readUTF());
@@ -148,7 +148,7 @@ public class TrainVec {
                         wordMap.put(nodeName, wordNeuron);
                     }
                 }
-                // ¶ÁÈ¡ÏÂÒ»²ã½Úµã¸öÊı
+                // è¯»å–ä¸‹ä¸€å±‚èŠ‚ç‚¹ä¸ªæ•°
                 nodeSize = dis.readInt();
             }
         } catch (Exception e) {
@@ -162,7 +162,7 @@ public class TrainVec {
             }
         }
 
-        // ¹¹½¨´ÊÏòÁ¿µÄÂ·¾¶Á´±í
+        // æ„å»ºè¯å‘é‡çš„è·¯å¾„é“¾è¡¨
         for (Neuron wordNeuron : wordMap.values()) {
             List<Neuron> neurons = new ArrayList<Neuron>();
             String pName = wordNeuron.getParentName();
@@ -178,7 +178,7 @@ public class TrainVec {
     }
 
     /**
-     * ±£´æÍêÕûµÄhaffmanÊ÷£¬ÓÃÓÚ¼ÓÔØºó¶ş´ÎÑµÁ·
+     * ä¿å­˜å®Œæ•´çš„haffmanæ ‘ï¼Œç”¨äºåŠ è½½åäºŒæ¬¡è®­ç»ƒ
      * 
      * @param file
      */
@@ -190,16 +190,16 @@ public class TrainVec {
         DataOutputStream dataOutputStream = null;
         try {
             dataOutputStream = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file)));
-            // ´ÊÏòÁ¿ÊıÁ¿
+            // è¯å‘é‡æ•°é‡
             dataOutputStream.writeInt(wordMap.size());
-            // ÑµÁ·×Ü´ÊÊı
+            // è®­ç»ƒæ€»è¯æ•°
             dataOutputStream.writeInt(trainWordsCount);
-            // ´ÊÏòÁ¿³¤¶È
+            // è¯å‘é‡é•¿åº¦
             dataOutputStream.writeInt(layerSize);
 
-            // °´²ãĞ´Èë½ÚµãÊı¾İ
+            // æŒ‰å±‚å†™å…¥èŠ‚ç‚¹æ•°æ®
             while (thisLevel.size() > 0) {
-                // Ğ´Èëµ±Ç°²ã½Úµã¸öÊı
+                // å†™å…¥å½“å‰å±‚èŠ‚ç‚¹ä¸ªæ•°
                 dataOutputStream.writeInt(thisLevel.size());
                 for (Neuron neuron : thisLevel) {
                     if (neuron.getLeftChild() != null) {
@@ -208,15 +208,15 @@ public class TrainVec {
                     if (neuron.getRightChild() != null) {
                         nextLevel.add(neuron.getRightChild());
                     }
-                    // µ±Ç°½ÚµãÃû×Ö
+                    // å½“å‰èŠ‚ç‚¹åå­—
                     dataOutputStream.writeUTF(neuron.getName());
-                    // ¸¸½ÚµãÃû×Ö
+                    // çˆ¶èŠ‚ç‚¹åå­—
                     dataOutputStream.writeUTF(neuron.getParentName());
-                    // ×ó×Ó½ÚµãÃû×Ö
+                    // å·¦å­èŠ‚ç‚¹åå­—
                     dataOutputStream.writeUTF(neuron.getLeftChildName());
-                    // ÓÒ×Ó½ÚµãÃû×Ö
+                    // å³å­èŠ‚ç‚¹åå­—
                     dataOutputStream.writeUTF(neuron.getRightChildName());
-                    // ½ÚµãÏòÁ¿
+                    // èŠ‚ç‚¹å‘é‡
                     if (neuron instanceof HiddenNeuron) {
                         float[] syn1 = ((HiddenNeuron) neuron).getSyn1();
                         for (float d : syn1) {
@@ -228,7 +228,7 @@ public class TrainVec {
                             dataOutputStream.writeFloat(d);
                         }
                     }
-                    // Èç¹ûÊÇ´ÊÏòÁ¿£¬»¹Ğè¼ÇÂ¼·ÖÁÑ¹ı³Ì
+                    // å¦‚æœæ˜¯è¯å‘é‡ï¼Œè¿˜éœ€è®°å½•åˆ†è£‚è¿‡ç¨‹
                     if (neuron instanceof HiddenNeuron) {
                         dataOutputStream.writeInt(0);
                     } else if (neuron instanceof WordNeuron) {
@@ -244,7 +244,7 @@ public class TrainVec {
                 thisLevel.addAll(nextLevel);
                 nextLevel.clear();
             }
-            // ºó±ß²»ÔÙÓĞ½Úµã
+            // åè¾¹ä¸å†æœ‰èŠ‚ç‚¹
             dataOutputStream.writeInt(0);
             dataOutputStream.close();
         } catch (IOException e) {

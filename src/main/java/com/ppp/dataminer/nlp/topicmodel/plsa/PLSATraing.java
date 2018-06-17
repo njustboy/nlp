@@ -21,13 +21,13 @@ import com.ppp.dataminer.nlp.topicmodel.util.FileUtil;
  */
 public class PLSATraing {
 	// 迭代次数
-	private int iters = 100;
+	private int iters = 200;
 	// 迭代多少次输出一次结果
-	private int saveStep = 10;
+	private int saveStep = 20;
 	// 迭代多少步后开始输出结果
-	private int beginSaveIters = 50;
+	private int beginSaveIters = 100;
 	// 主题数量
-	private int topicNum = 100;
+	private int topicNum = 300;
 	// 文本数量
 	private int N; // number of docs
 	// 单词数量
@@ -132,16 +132,16 @@ public class PLSATraing {
 	 * @throws IOException
 	 */
 	public void learnModel(Documents docSet) throws IOException {
-		for (int i = 0; i < iters; i++) {
+		for (int i = 1; i <= iters; i++) {
 			System.out.println(" --------------第 " + i + " 次迭代-------------- ");
+//			 em();
+			fastEM();
+			System.out.println("似然函数值为："+computeLogLikelihood());
 			if ((i >= beginSaveIters) && (((i - beginSaveIters) % saveStep) == 0)) {
 				// 保存中间过程的模型
 				System.out.println("保存第 " + i + " 次迭代训练的模型结果 ");
 				saveIteratedModel(i, docSet);
 			}
-			// em();
-			fastEM();
-			System.out.println("似然函数值为："+computeLogLikelihood());
 		}
 	}
 
@@ -338,12 +338,7 @@ public class PLSATraing {
 							* docTermTopicPros[docIndex][wordIndex][topicIndex];
 				}
 			}
-
-			// for (int docIndex = 0; docIndex < N; docIndex++) {
-			// for (int wordIndex = 0; wordIndex < M; wordIndex++) {
-			// tmpWord[wordIndex] += tmpDocWord[docIndex][wordIndex];
-			// }
-			// }
+			
 			for (int wordIndex = 0; wordIndex < M; wordIndex++) {
 				topicTermPros[topicIndex][wordIndex] = tmpWord[wordIndex];
 				totalDenominator += tmpWord[wordIndex];
@@ -462,7 +457,7 @@ public class PLSATraing {
 	}
 
 	public void saveIteratedModel(int iteration, Documents docSet) throws IOException {
-		String resPath = "plsamodel/model_fast_" + iteration;
+		String resPath = "plsamodel/model_" + iteration;
 		FileUtil.write2DArray(docTopicPros, resPath + ".docTopicPros");
 		FileUtil.write2DArray(topicTermPros, resPath + ".topicTermPros");
 

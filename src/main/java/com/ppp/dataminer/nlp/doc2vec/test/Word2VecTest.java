@@ -18,9 +18,9 @@ import com.ppp.dataminer.nlp.doc2vec.util.Word2Vec;
 
 public class Word2VecTest {
     public static void main(String[] args) throws Exception{
-//        // µü´úÑµÁ·´ÎÊı
+//        // è¿­ä»£è®­ç»ƒæ¬¡æ•°
 //        int iteratorNum = 15;
-//        // ´ÊÏòÁ¿³¤¶È
+//        // è¯å‘é‡é•¿åº¦
 //        int vecLen = 200;
 //        try{
 //           iteratorNum = Integer.parseInt(args[0]);
@@ -36,7 +36,7 @@ public class Word2VecTest {
 //        twv.saveHoffman(new File("model/haffman_"+iteratorNum+"_"+vecLen+".mod"));
 //        twv.saveWordVecs(new File("model/wordvec_"+iteratorNum+"_"+vecLen+".bin"));
 //        long end = System.currentTimeMillis();
-//        System.out.println("ÑµÁ·Ä£ĞÍ¹²ºÄÊ±£º"+(end-begin)/1000+"Ãë");
+//        System.out.println("è®­ç»ƒæ¨¡å‹å…±è€—æ—¶ï¼š"+(end-begin)/1000+"ç§’");
         
         Word2Vec w2v = Word2Vec.getInstance();
         
@@ -52,17 +52,17 @@ public class Word2VecTest {
        
 //        System.out.println(w2v.distance("java"));
 //        System.out.println(w2v.distance("php"));
-//        System.out.println(w2v.distance("·¿µØ²ú"));
-//        System.out.println(w2v.distance("ÏúÊÛ"));
-//        System.out.println(w2v.distance("¿§·È"));
-//        System.out.println(w2v.distance("»úĞµ"));
-//        System.out.println(w2v.distance("¹«ÎñÔ±"));
-//        System.out.println(w2v.distance("»¯Ñ§"));
-//        System.out.println(w2v.distance("µ¼ÓÎ"));
-//        System.out.println(w2v.distance("»¯×±"));
-//        System.out.println(w2v.distance("²Ö¿â"));
-//        System.out.println(w2v.distance("Ğ½×Ê"));
-//        System.out.println(w2v.distance("±¦Âí"));
+//        System.out.println(w2v.distance("æˆ¿åœ°äº§"));
+//        System.out.println(w2v.distance("é”€å”®"));
+//        System.out.println(w2v.distance("å’–å•¡"));
+//        System.out.println(w2v.distance("æœºæ¢°"));
+//        System.out.println(w2v.distance("å…¬åŠ¡å‘˜"));
+//        System.out.println(w2v.distance("åŒ–å­¦"));
+//        System.out.println(w2v.distance("å¯¼æ¸¸"));
+//        System.out.println(w2v.distance("åŒ–å¦†"));
+//        System.out.println(w2v.distance("ä»“åº“"));
+//        System.out.println(w2v.distance("è–ªèµ„"));
+//        System.out.println(w2v.distance("å®é©¬"));
 //  
 //        System.out.println(w2v.analogy("java", "ssh", "php"));
      }

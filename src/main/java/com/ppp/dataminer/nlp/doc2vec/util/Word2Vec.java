@@ -20,465 +20,465 @@ import java.util.TreeSet;
 import com.ppp.dataminer.nlp.doc2vec.data.WordPair;
 
 public class Word2Vec {
-	private HashMap<String, float[]> wordMap = new HashMap<String, float[]>();
-	// Ïà¹Ø´Ê±í
-	private Map<String, List<String>> wordpairMap = new HashMap<String, List<String>>();
-	//
-	private static final int MAX_SIZE = 50;
-	// µ¥Àı
-	private volatile static Word2Vec instance = null;
-	// word2vecÑµÁ·¶È´Ê¸öÊı
-	private int words;
-	// ´ÊÏòÁ¿³¤¶È
-	private int size;
+    private HashMap<String, float[]> wordMap = new HashMap<String, float[]>();
+    // ç›¸å…³è¯è¡¨
+    private Map<String, List<String>> wordpairMap = new HashMap<String, List<String>>();
+    //
+    private static final int MAX_SIZE = 50;
+    // å•ä¾‹
+    private volatile static Word2Vec instance = null;
+    // word2vecè®­ç»ƒåº¦è¯ä¸ªæ•°
+    private int words;
+    // è¯å‘é‡é•¿åº¦
+    private int size;
 
-	private int topNSize = 10;
+    private int topNSize = 10;
 
-	private Word2Vec() {
-		loadGoogleModel("model/");
-	}
+    private Word2Vec() {
+        loadGoogleModel("model/");
+    }
 
-	public static Word2Vec getInstance() {
-		if (instance == null) {
-			synchronized (Word2Vec.class) {
-				instance = new Word2Vec();
-			}
-		}
-		return instance;
-	}
+    public static Word2Vec getInstance() {
+        if (instance == null) {
+            synchronized (Word2Vec.class) {
+                instance = new Word2Vec();
+            }
+        }
+        return instance;
+    }
 
-	/**
-	 * ¼ÓÔØÄ£ĞÍ Ä£ĞÍÓÉgoogleµÄword2vec¹¤¾ßÉú³É
-	 * 
-	 * @param path
-	 *            Ä£ĞÍµÄÂ·¾¶
-	 */
-	public void loadGoogleModel(String path) {
-		DataInputStream dis = null;
-		BufferedInputStream bis = null;
-		BufferedReader br = null;
-		double len = 0;
-		float vector = 0;
-		try {
-			bis = new BufferedInputStream(
-					new FileInputStream(new File("/Users/zhimatech/Desktop/word2vec-master/data/factorys.bin")));
-			dis = new DataInputStream(bis);
-			// //¶ÁÈ¡´ÊÊı
-			words = Integer.parseInt(readString(dis));
-			// //´óĞ¡
-			size = Integer.parseInt(readString(dis));
-			String word;
-			float[] vectors = null;
-			for (int i = 0; i < words; i++) {
-				word = readString(dis);
-				vectors = new float[size];
-				len = 0;
-				// ¼ÆËãÏòÁ¿µÄÄ£
-				for (int j = 0; j < size; j++) {
-					vector = readFloat(dis);
-					// len += vector * vector;
-					vectors[j] = (float) vector;
-				}
-				// ÏòÁ¿µ¥Î»»¯
-				// len = Math.sqrt(len);
-				// for (int j = 0; j < size; j++) {
-				// vectors[j] /= len;
-				// }
-				// ´ÊÏòÁ¿´æ´¢
-				wordMap.put(word, vectors);
-				dis.read();
-			}
+    /**
+     * åŠ è½½æ¨¡å‹ æ¨¡å‹ç”±googleçš„word2vecå·¥å…·ç”Ÿæˆ
+     * 
+     * @param path
+     *            æ¨¡å‹çš„è·¯å¾„
+     */
+    public void loadGoogleModel(String path) {
+        DataInputStream dis = null;
+        BufferedInputStream bis = null;
+        BufferedReader br = null;
+        double len = 0;
+        float vector = 0;
+        try {
+            bis = new BufferedInputStream(
+                    new FileInputStream(new File("/Users/zhimatech/Desktop/word2vec-master/data/factorys.bin")));
+            dis = new DataInputStream(bis);
+            // //è¯»å–è¯æ•°
+            words = Integer.parseInt(readString(dis));
+            // //å¤§å°
+            size = Integer.parseInt(readString(dis));
+            String word;
+            float[] vectors = null;
+            for (int i = 0; i < words; i++) {
+                word = readString(dis);
+                vectors = new float[size];
+                len = 0;
+                // è®¡ç®—å‘é‡çš„æ¨¡
+                for (int j = 0; j < size; j++) {
+                    vector = readFloat(dis);
+                    // len += vector * vector;
+                    vectors[j] = (float) vector;
+                }
+                // å‘é‡å•ä½åŒ–
+                // len = Math.sqrt(len);
+                // for (int j = 0; j < size; j++) {
+                // vectors[j] /= len;
+                // }
+                // è¯å‘é‡å­˜å‚¨
+                wordMap.put(word, vectors);
+                dis.read();
+            }
 
-			// ¼ÓÔØÍ¬Òå´Ê
-			br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path + "simwords")), "UTF-8"));
-			String line = br.readLine();
-			while (line != null) {
-				String[] pairs = line.split(":");
-				if (pairs.length != 2) {
-					line = br.readLine();
-					continue;
-				}
-				String[] simwordsArr = pairs[1].split("\\s+");
-				wordpairMap.put(pairs[0], Arrays.asList(simwordsArr));
-				line = br.readLine();
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			if (dis != null) {
-				try {
-					dis.close();
-				} catch (Exception e) {
+            // åŠ è½½åŒä¹‰è¯
+            br = new BufferedReader(new InputStreamReader(new FileInputStream(new File(path + "simwords")), "UTF-8"));
+            String line = br.readLine();
+            while (line != null) {
+                String[] pairs = line.split(":");
+                if (pairs.length != 2) {
+                    line = br.readLine();
+                    continue;
+                }
+                String[] simwordsArr = pairs[1].split("\\s+");
+                wordpairMap.put(pairs[0], Arrays.asList(simwordsArr));
+                line = br.readLine();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (dis != null) {
+                try {
+                    dis.close();
+                } catch (Exception e) {
 
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
-	/**
-	 * ¼ÓÔØÄ£ĞÍ,Ä£ĞÍÓÉ±¾¹¤³ÌµÄjava´úÂëÉú´æ
-	 * 
-	 * @param path
-	 *            Ä£ĞÍµÄÂ·¾¶
-	 */
-	public void loadJavaModel(String path) {
-		DataInputStream dis = null;
-		try {
-			dis = new DataInputStream(new BufferedInputStream(new FileInputStream(path)));
-			words = dis.readInt();
-			size = dis.readInt();
+    /**
+     * åŠ è½½æ¨¡å‹,æ¨¡å‹ç”±æœ¬å·¥ç¨‹çš„javaä»£ç ç”Ÿå­˜
+     * 
+     * @param path
+     *            æ¨¡å‹çš„è·¯å¾„
+     */
+    public void loadJavaModel(String path) {
+        DataInputStream dis = null;
+        try {
+            dis = new DataInputStream(new BufferedInputStream(new FileInputStream(path)));
+            words = dis.readInt();
+            size = dis.readInt();
 
-			float vector = 0;
+            float vector = 0;
 
-			String key = null;
-			float[] value = null;
-			for (int i = 0; i < words; i++) {
-				double len = 0;
-				key = dis.readUTF();
-				value = new float[size];
-				for (int j = 0; j < size; j++) {
-					vector = dis.readFloat();
-					len += vector * vector;
-					value[j] = vector;
-				}
+            String key = null;
+            float[] value = null;
+            for (int i = 0; i < words; i++) {
+                double len = 0;
+                key = dis.readUTF();
+                value = new float[size];
+                for (int j = 0; j < size; j++) {
+                    vector = dis.readFloat();
+                    len += vector * vector;
+                    value[j] = vector;
+                }
 
-				len = Math.sqrt(len);
+                len = Math.sqrt(len);
 
-				for (int j = 0; j < size; j++) {
-					value[j] /= len;
-				}
-				wordMap.put(key, value);
-			}
-		} catch (Exception e) {
-		} finally {
-			if (dis != null) {
-				try {
-					dis.close();
-				} catch (Exception e) {
+                for (int j = 0; j < size; j++) {
+                    value[j] /= len;
+                }
+                wordMap.put(key, value);
+            }
+        } catch (Exception e) {
+        } finally {
+            if (dis != null) {
+                try {
+                    dis.close();
+                } catch (Exception e) {
 
-				}
-			}
-		}
-	}
+                }
+            }
+        }
+    }
 
-	/**
-	 * ·µ»ØÁ½¸ö¸ø¶¨µ¥´ÊµÄÏàËÆ¶È
-	 * 
-	 * @param word1
-	 * @param word2
-	 * @return
-	 */
-	public float getDistance(String word1, String word2) {
-		float distance = 0;
-		if (word1.equalsIgnoreCase(word2)) {
-			return 1;
-		}
-		if (!wordMap.containsKey(word1) || !wordMap.containsKey(word2)) {
-			return 0;
-		}
-		float[] vector1 = wordMap.get(word1);
-		float[] vector2 = wordMap.get(word2);
-		int length = vector1.length < vector2.length ? vector1.length : vector2.length;
+    /**
+     * è¿”å›ä¸¤ä¸ªç»™å®šå•è¯çš„ç›¸ä¼¼åº¦
+     * 
+     * @param word1
+     * @param word2
+     * @return
+     */
+    public float getDistance(String word1, String word2) {
+        float distance = 0;
+        if (word1.equalsIgnoreCase(word2)) {
+            return 1;
+        }
+        if (!wordMap.containsKey(word1) || !wordMap.containsKey(word2)) {
+            return 0;
+        }
+        float[] vector1 = wordMap.get(word1);
+        float[] vector2 = wordMap.get(word2);
+        int length = vector1.length < vector2.length ? vector1.length : vector2.length;
 
-		for (int i = 0; i < length; i++) {
-			distance += vector1[i] * vector2[i];
-		}
+        for (int i = 0; i < length; i++) {
+            distance += vector1[i] * vector2[i];
+        }
 
-		return distance;
-	}
+        return distance;
+    }
 
-	/**
-	 * ¼ÆËãÁ½¸ö´øÈ¨Öµ´ÊÁĞ±íµÄÏàËÆ¶È Í¨¹ı½«´ÊÏòÁ¿¼ÓÈ¨Æ½¾ùºó¼ÆËãµã»ıÊµÏÖ
-	 * 
-	 * @param list1
-	 * @param list2
-	 * @return
-	 */
-	public float getSimility(List<WordPair> list1, List<WordPair> list2) {
-		float distance = 0;
-		if (list1 == null || list2 == null || list1.size() == 0 || list2.size() == 0) {
-			return distance;
-		}
-		float[] vector1 = new float[size];
-		float[] vector2 = new float[size];
-		int count = 0;
-		for (WordPair wp : list1) {
-			if (wordMap.containsKey(wp.getWord())) {
-				float[] tmpVector = vectorMultiply(wordMap.get(wp.getWord()), wp.getWeight());
-				vector1 = vectorAdd(vector1, tmpVector);
-				count++;
-			}
-		}
-		if (count > 0) {
-			vector1 = vectorMultiply(vector1, 1.0 / count);
-		}
+    /**
+     * è®¡ç®—ä¸¤ä¸ªå¸¦æƒå€¼è¯åˆ—è¡¨çš„ç›¸ä¼¼åº¦ é€šè¿‡å°†è¯å‘é‡åŠ æƒå¹³å‡åè®¡ç®—ç‚¹ç§¯å®ç°
+     * 
+     * @param list1
+     * @param list2
+     * @return
+     */
+    public float getSimility(List<WordPair> list1, List<WordPair> list2) {
+        float distance = 0;
+        if (list1 == null || list2 == null || list1.size() == 0 || list2.size() == 0) {
+            return distance;
+        }
+        float[] vector1 = new float[size];
+        float[] vector2 = new float[size];
+        int count = 0;
+        for (WordPair wp : list1) {
+            if (wordMap.containsKey(wp.getWord())) {
+                float[] tmpVector = vectorMultiply(wordMap.get(wp.getWord()), wp.getWeight());
+                vector1 = vectorAdd(vector1, tmpVector);
+                count++;
+            }
+        }
+        if (count > 0) {
+            vector1 = vectorMultiply(vector1, 1.0 / count);
+        }
 
-		count = 0;
-		for (WordPair wp : list2) {
-			if (wordMap.containsKey(wp.getWord())) {
-				float[] tmpVector = vectorMultiply(wordMap.get(wp.getWord()), wp.getWeight());
-				vector2 = vectorAdd(vector2, tmpVector);
-				count++;
-			}
-		}
-		if (count > 0) {
-			vector2 = vectorMultiply(vector2, 1.0 / count);
-		}
+        count = 0;
+        for (WordPair wp : list2) {
+            if (wordMap.containsKey(wp.getWord())) {
+                float[] tmpVector = vectorMultiply(wordMap.get(wp.getWord()), wp.getWeight());
+                vector2 = vectorAdd(vector2, tmpVector);
+                count++;
+            }
+        }
+        if (count > 0) {
+            vector2 = vectorMultiply(vector2, 1.0 / count);
+        }
 
-		int minLength = vector1.length > vector2.length ? vector2.length : vector1.length;
-		int maxLength = vector1.length + vector2.length - minLength;
-		for (int i = 0; i < minLength; i++) {
-			distance += vector1[i] * vector2[i];
-		}
+        int minLength = vector1.length > vector2.length ? vector2.length : vector1.length;
+        int maxLength = vector1.length + vector2.length - minLength;
+        for (int i = 0; i < minLength; i++) {
+            distance += vector1[i] * vector2[i];
+        }
 
-		distance *= Math.pow((double) minLength / maxLength, 0.5);
+        distance *= Math.pow((double) minLength / maxLength, 0.5);
 
-		return distance;
-	}
+        return distance;
+    }
 
-	/**
-	 * ÏòÁ¿Ïà¼Ó
-	 * 
-	 * @param vector1
-	 * @param vector2
-	 * @return
-	 */
-	private static float[] vectorAdd(float[] vector1, float[] vector2) {
-		int minLength = vector1.length < vector2.length ? vector1.length : vector2.length;
-		for (int i = 0; i < minLength; i++) {
-			vector1[i] += vector2[i];
-		}
-		return vector1;
-	}
+    /**
+     * å‘é‡ç›¸åŠ 
+     * 
+     * @param vector1
+     * @param vector2
+     * @return
+     */
+    private static float[] vectorAdd(float[] vector1, float[] vector2) {
+        int minLength = vector1.length < vector2.length ? vector1.length : vector2.length;
+        for (int i = 0; i < minLength; i++) {
+            vector1[i] += vector2[i];
+        }
+        return vector1;
+    }
 
-	/**
-	 * ÏòÁ¿³ËÒÔ³£Êı
-	 * 
-	 * @param vector
-	 * @param d
-	 * @return
-	 */
-	private static float[] vectorMultiply(float[] vector, double d) {
-		for (int i = 0; i < vector.length; i++) {
-			vector[i] *= d;
-		}
-		return vector;
-	}
+    /**
+     * å‘é‡ä¹˜ä»¥å¸¸æ•°
+     * 
+     * @param vector
+     * @param d
+     * @return
+     */
+    private static float[] vectorMultiply(float[] vector, double d) {
+        for (int i = 0; i < vector.length; i++) {
+            vector[i] *= d;
+        }
+        return vector;
+    }
 
-	/**
-	 * Í¨¹ıÁ½¸ö´Ê¿¿½üµÄ¾àÀëÅĞ¶ÏÆäÏàËÆ¶È
-	 * 
-	 * @param word1
-	 * @param word2
-	 * @return
-	 */
-	public float getSimility(String word1, String word2) {
-		float simility = 0f;
-		if (word1.equalsIgnoreCase(word2)) {
-			return 1;
-		}
-		if (!wordpairMap.containsKey(word1) || !wordpairMap.containsKey(word2)) {
-			return simility;
-		}
-		float sim1 = 0;
-		List<String> simWords1 = wordpairMap.get(word1);
-		for (int i = 0; i < simWords1.size(); i++) {
-			if (simWords1.get(i).equals(word2)) {
-				sim1 = 1.0f * (simWords1.size() - i) / simWords1.size();
-				break;
-			}
-		}
-		float sim2 = 0;
-		List<String> simWords2 = wordpairMap.get(word2);
-		for (int i = 0; i < simWords2.size(); i++) {
-			if (simWords2.get(i).equals(word1)) {
-				sim2 = 1.0f * (simWords2.size() - i) / simWords2.size();
-				break;
-			}
-		}
+    /**
+     * é€šè¿‡ä¸¤ä¸ªè¯é è¿‘çš„è·ç¦»åˆ¤æ–­å…¶ç›¸ä¼¼åº¦
+     * 
+     * @param word1
+     * @param word2
+     * @return
+     */
+    public float getSimility(String word1, String word2) {
+        float simility = 0f;
+        if (word1.equalsIgnoreCase(word2)) {
+            return 1;
+        }
+        if (!wordpairMap.containsKey(word1) || !wordpairMap.containsKey(word2)) {
+            return simility;
+        }
+        float sim1 = 0;
+        List<String> simWords1 = wordpairMap.get(word1);
+        for (int i = 0; i < simWords1.size(); i++) {
+            if (simWords1.get(i).equals(word2)) {
+                sim1 = 1.0f * (simWords1.size() - i) / simWords1.size();
+                break;
+            }
+        }
+        float sim2 = 0;
+        List<String> simWords2 = wordpairMap.get(word2);
+        for (int i = 0; i < simWords2.size(); i++) {
+            if (simWords2.get(i).equals(word1)) {
+                sim2 = 1.0f * (simWords2.size() - i) / simWords2.size();
+                break;
+            }
+        }
 
-		return (sim1 + sim2) / 2;
-	}
+        return (sim1 + sim2) / 2;
+    }
 
-	/**
-	 * ·µ»Øfloat
-	 * 
-	 * @param is
-	 * @return
-	 */
-	public static float readFloat(InputStream is) {
-		byte[] bytes = new byte[4];
-		try {
-			is.read(bytes);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return getFloat(bytes);
-	}
+    /**
+     * è¿”å›float
+     * 
+     * @param is
+     * @return
+     */
+    public static float readFloat(InputStream is) {
+        byte[] bytes = new byte[4];
+        try {
+            is.read(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return getFloat(bytes);
+    }
 
-	/**
-	 * ¶ÁÈ¡Ò»¸öfloat
-	 * 
-	 * @param b
-	 * @return
-	 */
-	public static float getFloat(byte[] b) {
-		int accum = 0;
-		// °´ÕÕÌØ¶¨µÄ´æ´¢·½Ê½¶ÁÈ¡Êı¾İ
-		accum = accum | (b[0] & 0xff) << 0;
-		accum = accum | (b[1] & 0xff) << 8;
-		accum = accum | (b[2] & 0xff) << 16;
-		accum = accum | (b[3] & 0xff) << 24;
-		return Float.intBitsToFloat(accum);
-	}
+    /**
+     * è¯»å–ä¸€ä¸ªfloat
+     * 
+     * @param b
+     * @return
+     */
+    public static float getFloat(byte[] b) {
+        int accum = 0;
+        // æŒ‰ç…§ç‰¹å®šçš„å­˜å‚¨æ–¹å¼è¯»å–æ•°æ®
+        accum = accum | (b[0] & 0xff) << 0;
+        accum = accum | (b[1] & 0xff) << 8;
+        accum = accum | (b[2] & 0xff) << 16;
+        accum = accum | (b[3] & 0xff) << 24;
+        return Float.intBitsToFloat(accum);
+    }
 
-	/**
-	 * ¶ÁÈ¡Ò»¸ö×Ö·û´®
-	 * 
-	 * @param dis
-	 * @return
-	 */
-	private static String readString(DataInputStream dis) {
-		byte[] bytes = new byte[MAX_SIZE];
-		int i = -1;
-		StringBuilder sb = new StringBuilder();
-		try {
-			byte b = dis.readByte();
-			// °´ÕÕÌØ¶¨µÄ¸ñÊ½¶ÁÈ¡ÎÄ¼ş£»32Óë10·Ö±ğ±íÊ¾¿Õ¸ñºÍ»»ĞĞ¡£
-			while (b != 32 && b != 10) {
-				i++;
-				bytes[i] = b;
-				b = dis.readByte();
-				if (i == MAX_SIZE - 1) {
-					sb.append(new String(bytes, "UTF-8"));
-					i = -1;
-					bytes = new byte[MAX_SIZE];
-				}
-			}
-			sb.append(new String(bytes, 0, i + 1, "UTF-8"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return sb.toString();
-	}
+    /**
+     * è¯»å–ä¸€ä¸ªå­—ç¬¦ä¸²
+     * 
+     * @param dis
+     * @return
+     */
+    private static String readString(DataInputStream dis) {
+        byte[] bytes = new byte[MAX_SIZE];
+        int i = -1;
+        StringBuilder sb = new StringBuilder();
+        try {
+            byte b = dis.readByte();
+            // æŒ‰ç…§ç‰¹å®šçš„æ ¼å¼è¯»å–æ–‡ä»¶ï¼›32ä¸10åˆ†åˆ«è¡¨ç¤ºç©ºæ ¼å’Œæ¢è¡Œã€‚
+            while (b != 32 && b != 10) {
+                i++;
+                bytes[i] = b;
+                b = dis.readByte();
+                if (i == MAX_SIZE - 1) {
+                    sb.append(new String(bytes, "UTF-8"));
+                    i = -1;
+                    bytes = new byte[MAX_SIZE];
+                }
+            }
+            sb.append(new String(bytes, 0, i + 1, "UTF-8"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
 
-	/**
-	 * ½üÒå´Ê
-	 * 
-	 * @return
-	 */
-	public TreeSet<WordPair> analogy(String word0, String word1, String word2) {
-		float[] wv0 = getWordVector(word0);
-		float[] wv1 = getWordVector(word1);
-		float[] wv2 = getWordVector(word2);
+    /**
+     * è¿‘ä¹‰è¯
+     * 
+     * @return
+     */
+    public TreeSet<WordPair> analogy(String word0, String word1, String word2) {
+        float[] wv0 = getWordVector(word0);
+        float[] wv1 = getWordVector(word1);
+        float[] wv2 = getWordVector(word2);
 
-		if (wv1 == null || wv2 == null || wv0 == null) {
-			return null;
-		}
-		float[] wordVector = new float[size];
-		for (int i = 0; i < size; i++) {
-			wordVector[i] = wv1[i] - wv0[i] + wv2[i];
-		}
-		float[] tempVector;
-		String name;
-		List<WordPair> wordEntrys = new ArrayList<WordPair>(topNSize);
-		for (Entry<String, float[]> entry : wordMap.entrySet()) {
-			name = entry.getKey();
-			if (name.equals(word0) || name.equals(word1) || name.equals(word2)) {
-				continue;
-			}
-			float dist = 0;
-			tempVector = entry.getValue();
-			for (int i = 0; i < wordVector.length; i++) {
-				dist += wordVector[i] * tempVector[i];
-			}
-			insertTopN(name, dist, wordEntrys);
-		}
-		return new TreeSet<WordPair>(wordEntrys);
-	}
+        if (wv1 == null || wv2 == null || wv0 == null) {
+            return null;
+        }
+        float[] wordVector = new float[size];
+        for (int i = 0; i < size; i++) {
+            wordVector[i] = wv1[i] - wv0[i] + wv2[i];
+        }
+        float[] tempVector;
+        String name;
+        List<WordPair> wordEntrys = new ArrayList<WordPair>(topNSize);
+        for (Entry<String, float[]> entry : wordMap.entrySet()) {
+            name = entry.getKey();
+            if (name.equals(word0) || name.equals(word1) || name.equals(word2)) {
+                continue;
+            }
+            float dist = 0;
+            tempVector = entry.getValue();
+            for (int i = 0; i < wordVector.length; i++) {
+                dist += wordVector[i] * tempVector[i];
+            }
+            insertTopN(name, dist, wordEntrys);
+        }
+        return new TreeSet<WordPair>(wordEntrys);
+    }
 
-	private void insertTopN(String name, float score, List<WordPair> wordsEntrys) {
-		// TODO Auto-generated method stub
-		if (wordsEntrys.size() < topNSize) {
-			wordsEntrys.add(new WordPair(name, score));
-			return;
-		}
-		float min = Float.MAX_VALUE;
-		int minOffe = 0;
-		for (int i = 0; i < topNSize; i++) {
-			WordPair wordEntry = wordsEntrys.get(i);
-			if (min > wordEntry.getWeight()) {
-				min = (float) wordEntry.getWeight();
-				minOffe = i;
-			}
-		}
+    private void insertTopN(String name, float score, List<WordPair> wordsEntrys) {
+        // TODO Auto-generated method stub
+        if (wordsEntrys.size() < topNSize) {
+            wordsEntrys.add(new WordPair(name, score));
+            return;
+        }
+        float min = Float.MAX_VALUE;
+        int minOffe = 0;
+        for (int i = 0; i < topNSize; i++) {
+            WordPair wordEntry = wordsEntrys.get(i);
+            if (min > wordEntry.getWeight()) {
+                min = (float) wordEntry.getWeight();
+                minOffe = i;
+            }
+        }
 
-		if (score > min) {
-			wordsEntrys.set(minOffe, new WordPair(name, score));
-		}
+        if (score > min) {
+            wordsEntrys.set(minOffe, new WordPair(name, score));
+        }
 
-	}
+    }
 
-	public Set<WordPair> distance(String queryWord) {
+    public Set<WordPair> distance(String queryWord) {
 
-		float[] center = wordMap.get(queryWord);
-		if (center == null) {
-			return Collections.emptySet();
-		}
+        float[] center = wordMap.get(queryWord);
+        if (center == null) {
+            return Collections.emptySet();
+        }
 
-		int resultSize = wordMap.size() < topNSize ? wordMap.size() : topNSize;
-		TreeSet<WordPair> result = new TreeSet<WordPair>();
+        int resultSize = wordMap.size() < topNSize ? wordMap.size() : topNSize;
+        TreeSet<WordPair> result = new TreeSet<WordPair>();
 
-		double norm = 0;
-		for (int i = 0; i < center.length; i++) {
-			norm += center[i] * center[i];
-		}
-		norm = Math.sqrt(norm);
+        double norm = 0;
+        for (int i = 0; i < center.length; i++) {
+            norm += center[i] * center[i];
+        }
+        norm = Math.sqrt(norm);
 
-		double min = Float.MIN_VALUE;
+        double min = Float.MIN_VALUE;
 
-		for (Map.Entry<String, float[]> entry : wordMap.entrySet()) {
-			float[] vector = entry.getValue();
-			float dist = 0;
-			for (int i = 0; i < vector.length; i++) {
-				dist += center[i] * vector[i];
-			}
-			double norm1 = 0;
-			for (int i = 0; i < vector.length; i++) {
+        for (Map.Entry<String, float[]> entry : wordMap.entrySet()) {
+            float[] vector = entry.getValue();
+            float dist = 0;
+            for (int i = 0; i < vector.length; i++) {
+                dist += center[i] * vector[i];
+            }
+            double norm1 = 0;
+            for (int i = 0; i < vector.length; i++) {
 
-				norm1 += vector[i] * vector[i];
-			}
-			norm1 = Math.sqrt(norm1);
-			dist = (float) (dist / (norm * norm1));
-			// if (dist > min) {
-			result.add(new WordPair(entry.getKey(), dist));
-			if (resultSize < result.size()) {
-				result.pollLast();
-			}
-			min = result.last().getWeight();
-			// }
-		}
-		result.pollFirst();// ±¾Éí
+                norm1 += vector[i] * vector[i];
+            }
+            norm1 = Math.sqrt(norm1);
+            dist = (float) (dist / (norm * norm1));
+            // if (dist > min) {
+            result.add(new WordPair(entry.getKey(), dist));
+            if (resultSize < result.size()) {
+                result.pollLast();
+            }
+            min = result.last().getWeight();
+            // }
+        }
+        result.pollFirst();// æœ¬èº«
 
-		return result;
-	}
+        return result;
+    }
 
-	/**
-	 * µÃµ½´ÊÏòÁ¿
-	 * 
-	 * @param word
-	 * @return
-	 */
-	public float[] getWordVector(String word) {
-		return wordMap.get(word);
-	}
+    /**
+     * å¾—åˆ°è¯å‘é‡
+     * 
+     * @param word
+     * @return
+     */
+    public float[] getWordVector(String word) {
+        return wordMap.get(word);
+    }
 
-	/**
-	 * »ñµÃ´Êµä¼¯ºÏ
-	 * 
-	 * @return
-	 */
-	public Set<String> getWords() {
-		return wordMap.keySet();
-	}
+    /**
+     * è·å¾—è¯å…¸é›†åˆ
+     * 
+     * @return
+     */
+    public Set<String> getWords() {
+        return wordMap.keySet();
+    }
 }

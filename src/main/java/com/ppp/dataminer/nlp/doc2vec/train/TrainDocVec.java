@@ -19,20 +19,20 @@ import com.ppp.dataminer.nlp.doc2vec.data.Neuron;
 import com.ppp.dataminer.nlp.doc2vec.data.WordNeuron;
 
 /**
- * ÎÄ±¾ÏòÁ¿ÑµÁ·¹¤¾ß
+ * æ–‡æœ¬å‘é‡è®­ç»ƒå·¥å…·
  * 
- * ×¢ÒâĞèÒªÌáÇ°ÑµÁ·ºÃ´ÊÏòÁ¿¼°haffmanÊ÷Ä£ĞÍ£¬ÑµÁ·ÎÄ±¾ÏòÁ¿Ê±´ÊÏòÁ¿²»»á¸Ä±ä
+ * æ³¨æ„éœ€è¦æå‰è®­ç»ƒå¥½è¯å‘é‡åŠhaffmanæ ‘æ¨¡å‹ï¼Œè®­ç»ƒæ–‡æœ¬å‘é‡æ—¶è¯å‘é‡ä¸ä¼šæ”¹å˜
  * @author zhangwei
  *
  */
 public class TrainDocVec extends TrainVec {
     /**
-     * ÎÄ±¾ÏòÁ¿
+     * æ–‡æœ¬å‘é‡
      */
     private Map<String, float[]> docVector = new HashMap<>();
 
     /**
-     * ´ÓÄÚ´æ¹¹½¨Ä£ĞÍ
+     * ä»å†…å­˜æ„å»ºæ¨¡å‹
      * 
      * @param wordMap
      * @throws IOException
@@ -42,7 +42,7 @@ public class TrainDocVec extends TrainVec {
     }
 
     /**
-     * ´ÓÄ£ĞÍÎÄ¼ş¹¹½¨Ä£ĞÍ
+     * ä»æ¨¡å‹æ–‡ä»¶æ„å»ºæ¨¡å‹
      * 
      * @param modelFile
      */
@@ -55,18 +55,18 @@ public class TrainDocVec extends TrainVec {
     }
 
     /**
-     * Ô¤²âÎÄ±¾ÏòÁ¿
+     * é¢„æµ‹æ–‡æœ¬å‘é‡
      * 
      * @param words
      * @return
      */
     public float[] calcVector(String[] words) {
         float[] vector = new float[layerSize];
-        // ³õÊ¼»¯ÎÄ±¾ÏòÁ¿
+        // åˆå§‹åŒ–æ–‡æœ¬å‘é‡
         for (int i = 0; i < vector.length; i++) {
             vector[i] = (float) ((new Random().nextDouble() - 0.5) / layerSize);
         }
-        // µü´ú¼ÆËã
+        // è¿­ä»£è®¡ç®—
         for (int j = 0; j < iteratorNum; j++) {
             alpha = startingAlpha * (1 - (double) j / iteratorNum);
             long nextRandom = new Random().nextInt(5);
@@ -76,7 +76,7 @@ public class TrainDocVec extends TrainVec {
                 if (entry == null) {
                     continue;
                 }
-                // Ëæ»úÌø¹ıÒ»Ğ©´Ê»ã£¬Ö»ÓĞ³öÏÖÆµÂÊºÜ´óµÄ´ÊÔÚÕâÀï²Å¿ÉÄÜ±»Ìø¹ı
+                // éšæœºè·³è¿‡ä¸€äº›è¯æ±‡ï¼Œåªæœ‰å‡ºç°é¢‘ç‡å¾ˆå¤§çš„è¯åœ¨è¿™é‡Œæ‰å¯èƒ½è¢«è·³è¿‡
                 // if (sample > 0) {
                 // double ran = (Math.sqrt(entry.freq / (sample *
                 // trainWordsCount))
@@ -104,17 +104,17 @@ public class TrainDocVec extends TrainVec {
     }
 
     /**
-     * ¸ù¾İÎÄ¼şÑ§Ï°£¬ÅúÁ¿Ó¦ÓÃ
+     * æ ¹æ®æ–‡ä»¶å­¦ä¹ ï¼Œæ‰¹é‡åº”ç”¨
      * 
      * @param file
      * @throws IOException
      */
     public void learnFile(File file) {
-        // ³õÊ¼»¯ÎÄ±¾ÏòÁ¿
+        // åˆå§‹åŒ–æ–‡æœ¬å‘é‡
         initializeDocVec(file);
 
         for (int i = 0; i < iteratorNum; i++) {
-            // Ã¿Ò»ÂÖµü´ú¼õĞ¡Ñ§Ï°²½³¤
+            // æ¯ä¸€è½®è¿­ä»£å‡å°å­¦ä¹ æ­¥é•¿
             alpha = startingAlpha * (1 - (double) i / iteratorNum);
             trainModel(file);
         }
@@ -199,13 +199,13 @@ public class TrainDocVec extends TrainVec {
                 }
             }
         }
-        System.out.println("ÑµÁ·" + file.getName() + "ÎÄ±¾ÏòÁ¿½áÊø");
+        System.out.println("è®­ç»ƒ" + file.getName() + "æ–‡æœ¬å‘é‡ç»“æŸ");
     }
 
     /**
-     * skip gram Ä£ĞÍÑµÁ·
+     * skip gram æ¨¡å‹è®­ç»ƒ
      * 
-     * Ä£ĞÍÎ´ÑéÖ¤£¬ÔİÊ±²»ÓÃ
+     * æ¨¡å‹æœªéªŒè¯ï¼Œæš‚æ—¶ä¸ç”¨
      * 
      * @param sentence
      * @param neu1
@@ -227,12 +227,12 @@ public class TrainDocVec extends TrainVec {
                 continue;
             }
 
-            double[] neu1e = new double[layerSize];// Îó²îÏî
+            double[] neu1e = new double[layerSize];// è¯¯å·®é¡¹
             // HIERARCHICAL SOFTMAX
             WordNeuron we = sentence.get(c);
             List<Neuron> neurons = we.getNeurons();
 
-            // ²»ÊÇÖĞ¼ä´ÊÏòÁ¿£¬¶øÊÇÎÄ±¾ÏòÁ¿
+            // ä¸æ˜¯ä¸­é—´è¯å‘é‡ï¼Œè€Œæ˜¯æ–‡æœ¬å‘é‡
 
             for (int i = 0; i < neurons.size(); i++) {
                 HiddenNeuron out = (HiddenNeuron) neurons.get(i);
@@ -259,7 +259,7 @@ public class TrainDocVec extends TrainVec {
                 // out.syn1[c] += g * we.syn0[c];
                 //
                 // }
-                // ²»¸Ä±äÔ¤²âµÄÖĞ¼ä´ÊµÄÏòÁ¿
+                // ä¸æ”¹å˜é¢„æµ‹çš„ä¸­é—´è¯çš„å‘é‡
             }
 
             // Learn weights input -> hidden
@@ -267,13 +267,13 @@ public class TrainDocVec extends TrainVec {
                 // we.syn0[j] += neu1e[j];
 
                 docVec[j] += neu1e[j];
-                // ¸üĞÂ¾ä×Ó£¨ÎÄ±¾£©ÏòÁ¿£¬²»¸üĞÂ´ÊÏòÁ¿
+                // æ›´æ–°å¥å­ï¼ˆæ–‡æœ¬ï¼‰å‘é‡ï¼Œä¸æ›´æ–°è¯å‘é‡
             }
         }
     }
 
     /**
-     * ´Ê´üÄ£ĞÍ
+     * è¯è¢‹æ¨¡å‹
      * 
      * @param index
      * @param sentence
@@ -285,7 +285,7 @@ public class TrainDocVec extends TrainVec {
     }
 
     /**
-     * ´Ê´üÄ£ĞÍ
+     * è¯è¢‹æ¨¡å‹
      * 
      * @param index
      * @param sentence
@@ -295,14 +295,14 @@ public class TrainDocVec extends TrainVec {
         WordNeuron word = sentence.get(index);
         int a, c = 0;
 
-        // haffmanÊ÷Â·¾¶
+        // haffmanæ ‘è·¯å¾„
         List<Neuron> neurons = word.getNeurons();
-        // Îó²îÏî
+        // è¯¯å·®é¡¹
         double[] neu1e = new double[layerSize];
-        // ÉÏÏÂÎÄ´ÊÏòÁ¿ºÍ
+        // ä¸Šä¸‹æ–‡è¯å‘é‡å’Œ
         double[] neu1 = new double[layerSize];
         WordNeuron lastWord;
-        // ´Ë´¦²»ÊÇÈ¡¹Ì¶¨´°¿Ú£¬¶øÊÇÈ¡×î´ó´°¿Ú´óĞ¡ÒÔÄÚµÄÒ»¸öËæ»úÖµ
+        // æ­¤å¤„ä¸æ˜¯å–å›ºå®šçª—å£ï¼Œè€Œæ˜¯å–æœ€å¤§çª—å£å¤§å°ä»¥å†…çš„ä¸€ä¸ªéšæœºå€¼
         for (a = b; a < window * 2 + 1 - b; a++) {
             if (a != window) {
                 c = index - window + a;
@@ -315,17 +315,17 @@ public class TrainDocVec extends TrainVec {
                     continue;
                 }
                 for (c = 0; c < layerSize; c++) {
-                    // ¼ÆËãÉÏÏÂÎÄ´ÊÏòÁ¿ºÍ
+                    // è®¡ç®—ä¸Šä¸‹æ–‡è¯å‘é‡å’Œ
                     neu1[c] += lastWord.getSyn0()[c];
                 }
             }
         }
-        // ½«ÎÄ±¾µÄÏòÁ¿Ò²×÷ÎªÊäÈë
+        // å°†æ–‡æœ¬çš„å‘é‡ä¹Ÿä½œä¸ºè¾“å…¥
         for (c = 0; c < layerSize; c++) {
             neu1[c] += vector[c];
         }
 
-        // ²ã´ÎSOFTMAX
+        // å±‚æ¬¡SOFTMAX
         for (int d = 0; d < neurons.size(); d++) {
             HiddenNeuron out = (HiddenNeuron) neurons.get(d);
             double f = 0;
@@ -335,7 +335,7 @@ public class TrainDocVec extends TrainVec {
             if (f <= -MAX_EXP || f >= MAX_EXP) {
                 continue;
             } else {
-                // ²î¾²Ì¬±í»ñµÃ½á¹û£¨¼õÉÙ¼ÆËãÁ¿£©
+                // å·®é™æ€è¡¨è·å¾—ç»“æœï¼ˆå‡å°‘è®¡ç®—é‡ï¼‰
                 // y=ax+b
                 // 1000=6a+b
                 // 0=-6a+b
@@ -345,20 +345,20 @@ public class TrainDocVec extends TrainVec {
             // double g = (1 - word.codeArr[d] - f) * alpha;
             // double g = f*(1-f)*( word.codeArr[i] - f) * alpha;
             double g = f * (1 - f) * (word.getCodeArr()[d] - f) * alpha;
-            // ÀÛ¼ÓÎó²î
+            // ç´¯åŠ è¯¯å·®
             for (c = 0; c < layerSize; c++) {
                 neu1e[c] += g * out.getSyn1()[c];
             }
 
         }
-        // ¸üĞÂÎÄ±¾ÏòÁ¿
+        // æ›´æ–°æ–‡æœ¬å‘é‡
         for (c = 0; c < layerSize; c++) {
             vector[c] += neu1e[c];
         }
     }
 
     /**
-     * ³õÊ¼»¯ÎÄ±¾ÏòÁ¿
+     * åˆå§‹åŒ–æ–‡æœ¬å‘é‡
      * 
      * @param file
      * @throws IOException
@@ -376,7 +376,7 @@ public class TrainDocVec extends TrainVec {
     }
 
     /**
-     * ³õÊ¼»¯ÎÄ±¾ÏòÁ¿£¬ÊäÈëÎÄ±¾ÖĞµÄÃ¿Ò»ĞĞ±íÊ¾Ò»¸öÎÄ±¾£¬ĞèÒªÔ¤ÏÈ½øĞĞ·Ö´Ê´¦Àí²¢½«·Ö´Ê½á¹û¿Õ¸ñ¸ô¿ª
+     * åˆå§‹åŒ–æ–‡æœ¬å‘é‡ï¼Œè¾“å…¥æ–‡æœ¬ä¸­çš„æ¯ä¸€è¡Œè¡¨ç¤ºä¸€ä¸ªæ–‡æœ¬ï¼Œéœ€è¦é¢„å…ˆè¿›è¡Œåˆ†è¯å¤„ç†å¹¶å°†åˆ†è¯ç»“æœç©ºæ ¼éš”å¼€
      * @param file
      */
     private void initializeDocVecFromFile(File file) {
@@ -411,11 +411,11 @@ public class TrainDocVec extends TrainVec {
                 }
             }
         }
-        System.out.println("³õÊ¼»¯" + file.getName() + "ÎÄ±¾ÏòÁ¿½áÊø");
+        System.out.println("åˆå§‹åŒ–" + file.getName() + "æ–‡æœ¬å‘é‡ç»“æŸ");
     }
 
     /**
-     * ÎÄ±¾ÏòÁ¿Ğ´ÎÄ¼ş
+     * æ–‡æœ¬å‘é‡å†™æ–‡ä»¶
      * 
      * @param file
      */
@@ -427,7 +427,7 @@ public class TrainDocVec extends TrainVec {
             Object[] array = docVector.keySet().toArray();
             Arrays.sort(array);
             String head = ((String) array[0]).substring(0, ((String) array[0]).lastIndexOf("_"));
-            // ¼ÆÊıÆ÷
+            // è®¡æ•°å™¨
             int count = 0;
             for (Object docNo : array) {
                 count++;

@@ -8,7 +8,7 @@ import com.ppp.dataminer.nlp.topicmodel.data.ScoreComparable;
 
 public class Test {
 	public static void main(String[] args) throws IOException {
-		 doTrain();
+//		 doTrain();
 		 doInference("店员/营业员#&#&#在面料市场做营业员，每天像顾客推荐布料、款式，让他们能够购买商品。");
 	}
 
@@ -26,9 +26,6 @@ public class Test {
 		model.learnModel(docSet);
 		long end = System.currentTimeMillis();
 		System.out.println("模型训练结束，共耗时：" + (end - begin) / 1000 + "秒");
-		System.out.println("输出模型结果");
-		model.saveIteratedModel(100, docSet);
-		System.out.println("训练任务完成");
 	}
 
 	public static void doInference(String newDoc) {

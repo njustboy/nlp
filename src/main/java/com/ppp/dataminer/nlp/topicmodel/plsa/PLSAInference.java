@@ -1,6 +1,7 @@
 package com.ppp.dataminer.nlp.topicmodel.plsa;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +9,8 @@ import java.util.Random;
 
 import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
+
+import com.ppp.dataminer.nlp.topicmodel.data.ScoreComparable;
 
 /**
  * PLSA应用实现
@@ -70,6 +73,26 @@ public class PLSAInference {
 		}
 
 		return topicPros;
+	}
+
+	public List<String> getKeywords(float[] topicPros) {
+		List<String> keywords = new ArrayList<String>();
+		// 主题索引
+		Integer[] index = new Integer[topicPros.length];
+		for (int i = 0; i < index.length; i++) {
+			index[i] = i;
+		}
+		Arrays.sort(index, new ScoreComparable(topicPros));
+
+		for (int i = 0; i < 3; i++) {
+			// 取前3个主题的前3个词
+			List<String> wordList = plsa.getTopicKeywords().get(index[i]);
+			for (int j = 0; j < 3; j++) {
+				keywords.add(wordList.get(j));
+			}
+		}
+
+		return keywords;
 	}
 
 	public float[] simplePlsaInference(String newDoc) {

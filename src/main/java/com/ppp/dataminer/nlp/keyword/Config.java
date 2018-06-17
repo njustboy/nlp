@@ -16,7 +16,7 @@ public class Config {
    // 关键词在整个文本中所占比例
    public static double KEYWORD_PERCENT = 0.3;
    // 关键词个数上限
-   public static int KEYWORD_MAXCOUNT = 20;
+   public static int KEYWORD_MAXCOUNT = 10;
    // JOBIDF
    public static double JOBIDF_MAX = 12.0;
    // WORKIDF
