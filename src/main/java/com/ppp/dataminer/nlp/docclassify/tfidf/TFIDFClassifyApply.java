@@ -17,7 +17,7 @@ import org.ansj.domain.Term;
 import org.ansj.splitWord.analysis.ToAnalysis;
 
 import com.ppp.dataminer.nlp.doc2vec.data.WordPair;
-import com.ppp.dataminer.nlp.keyword.KeywordParserUtil;
+import com.ppp.dataminer.nlp.keyword.KeywordParserUtil4Resume;
 
 /**
  * 基于TFIDF的文本分类应用
@@ -383,7 +383,7 @@ public class TFIDFClassifyApply {
 
 	private static String parseKeywords(String line) {
 		String keywords = "";
-		List<WordPair> parseKeywords = KeywordParserUtil.parseKeywords(line, true);
+		List<WordPair> parseKeywords = KeywordParserUtil4Resume.parseKeywords(line, true);
 		for (WordPair wp : parseKeywords) {
 			keywords += wp.getWord() + " ";
 		}
