@@ -41,10 +41,10 @@ public class WordPair implements Comparable<WordPair> {
     }
 
     public String toString() {
-       return word + ":" + weight;
+//       return word + ":" + weight;
+    	return word;
     }
 
-    // ÷ÿ–¥equals∑Ω∑®
     public boolean equals(Object obj) {
        //
        if (this == obj) {

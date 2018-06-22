@@ -24,6 +24,28 @@ public class PLSAInference {
 
 	private PLSAModel plsa = new PLSAModel();
 
+	public PLSAModel getPlsa() {
+		return plsa;
+	}
+
+	public void setPlsa(PLSAModel plsa) {
+		this.plsa = plsa;
+	}
+
+	private static PLSAInference instance = null;
+
+	public static synchronized PLSAInference getInstance() {
+		if (instance == null) {
+			synchronized (PLSAInference.class) {
+				if (instance == null) {
+					instance = new PLSAInference();
+					instance.initializeModel("plsamodel/");
+				}
+			}
+		}
+		return instance;
+	}
+
 	public void initializeModel(String modelPath) {
 		plsa.initializeModel(modelPath);
 	}

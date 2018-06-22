@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,6 +18,8 @@ import org.ansj.splitWord.analysis.ToAnalysis;
 import org.ansj.util.FilterModifWord;
 
 import com.ppp.dataminer.nlp.doc2vec.data.WordPair;
+import com.ppp.dataminer.nlp.topicmodel.data.ScoreComparable;
+import com.ppp.dataminer.nlp.topicmodel.plsa.PLSAInference;
 
 /**
  * 通用的关键词提取工具类
@@ -47,6 +50,37 @@ public class KeywordParserUtil {
 		// 自定义词性应该给与高权重
 		POS_SCORE.put("userDefine", 5.0);
 		initStopwords();
+	}
+
+	public static List<String> simpleParseKeywords(String content, int count) {
+		List<String> keywords = new ArrayList<String>();
+		// 主题分布
+		float[] topicPros = PLSAInference.getInstance().plsaInference(content);
+		// 主题对应的索引
+		Integer[] index = new Integer[topicPros.length];
+		for (int i = 0; i < index.length; i++) {
+			index[i] = i;
+		}
+		Arrays.sort(index, new ScoreComparable(topicPros));
+
+		List<Term> terms = ToAnalysis.parse(content);
+		Map<Integer, List<String>> topicKeywords = PLSAInference.getInstance().getPlsa().getTopicKeywords();
+		for (int i = 0; i < index.length; i++) {
+			List<String> list = topicKeywords.get(index[i]);
+			for (Term term : terms) {
+				if (list.contains(term.getName()) && !keywords.contains(term.getName())) {
+					keywords.add(term.getName());
+				}
+				if (keywords.size() >= count) {
+					break;
+				}
+			}
+			if (keywords.size() >= count) {
+				break;
+			}
+		}
+
+		return keywords;
 	}
 
 	/**
@@ -111,7 +145,7 @@ public class KeywordParserUtil {
 
 		List<WordPair> allWords = update(tfMap, cixingWeightMap, semanticMap);
 		Collections.sort(allWords);
-		
+
 		if (allWords.size() > Config.KEYWORD_MAXCOUNT) {
 			for (int i = 0; i < Config.KEYWORD_MAXCOUNT; i++) {
 				keywords.add(allWords.get(i));
